@@ -1223,11 +1223,14 @@ namespace LocationConnection
 		public static async Task<Bitmap> GetImageBitmapFromUrlAsync(string url)
 		{
 			try
-			{	
-				/*Stopwatch stw = new Stopwatch();
+			{
+                /*Stopwatch stw = new Stopwatch();
 				stw.Start();*/
 
-				using var httpResponse = await client.GetAsync(url);
+                // for awardspace that does not serve image requests
+                url = url.Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
+
+                using var httpResponse = await client.GetAsync(url);
 
 				/*stw.Stop();
 				CWStatic("------------- Load in " + stw.ElapsedMilliseconds + " " + url + " -------------- " + System.Environment.NewLine);
@@ -1263,7 +1266,7 @@ namespace LocationConnection
 				stw.Start();*/
 
 				// for awardspace that does not serve image requests
-				url = url.Replace("https", "http").Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
+				url = url.Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
 
                 using var httpResponse = await client.GetAsync(url);
 

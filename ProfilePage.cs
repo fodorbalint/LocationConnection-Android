@@ -143,7 +143,7 @@ namespace LocationConnection
 			}
 			catch (Exception ex)
 			{
-				await c.ErrorAlert(res.GetString(Resource.String.ImageLoadingError) + " " + ex.Message);
+				await c.ErrorAlert(res.GetString(Resource.String.ImageLoadingError) + " " + selectedFile + " - " + ex.Message);
 				c.ReportErrorSilent(res.GetString(Resource.String.ImageLoadingError) + " " + ex.Message);
 				selectedFile = null;
 				return null;

@@ -2,7 +2,7 @@
 	<string name="app_text">Hello, Android!</string>	
 	<string name="app_name">Location Connection</string>
 	<string name="app_name_short">Connection</string>
-	<string name="versionInfo">Version: 1.8 - January 24, 2025\n\nCreated by Balint Fodor\n\nContact: fodorbalint@gmail.com\n\nWebsite: locationconnection.dk\n\nPrivacy policy:\nlocationconnection.dk/?page=legal#privacy\n\nSource code:\ngithub.com/fodorbalint?tab=repositories</string>
+	<string name="versionInfo">Version: 1.9 - April 26, 2025\n\nCreated by Balint Fodor\n\nContact: fodorbalint@gmail.com\n\nWebsite: locationconnection.dk\n\nPrivacy policy:\nlocationconnection.dk/?page=legal#privacy\n\nSource code:\ngithub.com/fodorbalint?tab=repositories</string>
 
 	<!-- General -->
 

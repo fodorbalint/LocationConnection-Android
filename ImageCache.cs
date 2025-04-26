@@ -44,6 +44,9 @@ namespace LocationConnection
                 string url;
                 url = Constants.HostName + Constants.UploadFolder + "/" + userID + "/" + Constants.SmallImageSize.ToString() + "/" + picture;
 
+                // for awardspace that does not serve image requests
+                url = url.Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
+
                 byte[] bytes = null;
 
                 var task = CommonMethods.GetImageDataFromUrlAsync(url);
@@ -131,6 +134,9 @@ namespace LocationConnection
                     {
                         url = Constants.HostName + Constants.TempUploadFolder + "/" + userID + "/" + subFolder + "/" + picture;
                     }
+
+                    // for awardspace that does not serve image requests
+                    url = url.Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
 
                     if (imageView != null)
                     {

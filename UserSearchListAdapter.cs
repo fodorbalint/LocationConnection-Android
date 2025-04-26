@@ -46,14 +46,6 @@ namespace LocationConnection
                 await im.LoadImage(ListImage, profiles[position].ID.ToString(), profiles[position].Pictures[0]);
             });
 
-            //Requires Xamarin.FFImageLoading
-
-            /*ImageView ListImage = view.FindViewById<ImageView>(Resource.Id.ListImage);
-            string url;
-            url = Constants.HostName + Constants.UploadFolder + "/" + profiles[position].ID + "/" + Constants.SmallImageSize + "/" + profiles[position].Pictures[0];
-			ImageService im = new ImageService();
-			im.LoadUrl(url).LoadingPlaceholder(Constants.loadingImage, FFImageLoading.Work.ImageSource.CompiledResource).ErrorPlaceholder(Constants.noImage, FFImageLoading.Work.ImageSource.CompiledResource).Into(ListImage);*/
-
             return view;
         }      
     }

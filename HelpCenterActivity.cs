@@ -349,7 +349,10 @@ namespace LocationConnection
 			
 			string url = Constants.HostName + Constants.TutorialFolder + "/" + tutorialPictures[index];
 
-			Bitmap im = null;
+            // for awardspace that does not serve image requests
+            url = url.Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
+
+            Bitmap im = null;
 
 			var task = CommonMethods.GetImageBitmapFromUrlAsync(url);
 			System.Threading.CancellationTokenSource cts = new System.Threading.CancellationTokenSource();

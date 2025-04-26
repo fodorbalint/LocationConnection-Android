@@ -1316,9 +1316,12 @@ namespace LocationConnection
 				string url;
 				url = Constants.HostName + Constants.UploadFolder + "/" + folder + "/" + Constants.LargeImageSize + "/" + picture;
 
-				//c.Log("LoadPicture start ID " + folder + " index " + index);
+                // for awardspace that does not serve image requests
+                url = url.Replace(".jpg", "").Replace(".jpeg", "").Replace(".png", "");
 
-				Bitmap im = null;
+                //c.Log("LoadPicture start ID " + folder + " index " + index);
+
+                Bitmap im = null;
 
 				var task = CommonMethods.GetImageBitmapFromUrlAsync(url);
 				System.Threading.CancellationTokenSource cts = new System.Threading.CancellationTokenSource();

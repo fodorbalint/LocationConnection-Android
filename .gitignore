@@ -9,7 +9,7 @@ google-services.json
 AndroidManifest.xml
 LocationConnection.csproj
 fodorbalint.keystore
-balintfodor.locationconnection.aab
+balintfodor.locationconnection-*.aab
 
 # User-specific files
 *.rsuser

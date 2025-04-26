@@ -120,14 +120,6 @@ namespace LocationConnection
 				await im.LoadImage(Image, items[position].TargetID.ToString(), items[position].TargetPicture, false);
 			});
 
-			//Requires Xamarin.FFImageLoading. Not perfect, sometimes image is not found.
-
-			/*string url;
-			url = Constants.HostName + Constants.UploadFolder + "/" + items[position].TargetID + "/" + Constants.SmallImageSize + "/" + items[position].TargetPicture;
-			
-			ImageService im = new ImageService();
-			im.LoadUrl(url).LoadingPlaceholder(Constants.loadingImage, FFImageLoading.Work.ImageSource.CompiledResource).ErrorPlaceholder(Constants.noImage, FFImageLoading.Work.ImageSource.CompiledResource).Into(Image);
-			*/
 			return view;
 		}
 	}

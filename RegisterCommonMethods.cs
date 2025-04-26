@@ -255,7 +255,7 @@ namespace LocationConnection
 						url = (regsessionid == "") ? Constants.HostName + "?action=uploadtotemp" : Constants.HostName + "?action=uploadtotemp&regsessionid=" + regsessionid;
 					}
 
-					MultipartFormDataContent form = new MultipartFormDataContent();
+                    MultipartFormDataContent form = new MultipartFormDataContent();
 					form.Add(new StreamContent(new MemoryStream(File.ReadAllBytes(fileName))), "file", System.IO.Path.GetFileName(fileName));
 
 					context.c.CW("UploadFile 1" + fileName);

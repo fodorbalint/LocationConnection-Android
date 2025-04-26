@@ -224,51 +224,57 @@ namespace LocationConnection
 		{
 			base.OnDraw(canvas);
 
-			try
+            string str = "ondraw0";
+
+            try
 			{
-			context.c.CW("OnDraw canvas + " + canvas + "scaleFactor " + scaleFactor + " Width " + Width + " Height " + Height);
-            context.c.CW(" bmWidth " + bm.Width + " bmHeight " + bm.Height + " intrinsicWidth " + intrinsicWidth + " intrinsicHeight " + intrinsicHeight);
+				
+				context.c.CW("OnDraw canvas + " + canvas + "scaleFactor " + scaleFactor + " Width " + Width + " Height " + Height);
+				context.c.CW(" bmWidth " + bm.Width + " bmHeight " + bm.Height + " intrinsicWidth " + intrinsicWidth + " intrinsicHeight " + intrinsicHeight);
 
 				canvas.Save();
-				canvas.Translate(-(scaleFactor - 1) * canvas.Width / 2, -(scaleFactor - 1) * canvas.Height / 2);
+
+                str = "ondraw1";
+
+                canvas.Translate(-(scaleFactor - 1) * canvas.Width / 2, -(scaleFactor - 1) * canvas.Height / 2);
 				canvas.Scale(scaleFactor, scaleFactor);
 
-			context.c.CW("ondraw1");
-                Rect frameToDraw = new Rect(0, 0, bm.Width, bm.Height);
-            context.c.CW("ondraw2");
-            RectF whereToDraw = new RectF((float)Width / 2 - intrinsicWidth / 2 + xDist, (float)Height / 2 - intrinsicHeight / 2 + yDist, (float)Width / 2 - intrinsicWidth / 2 + xDist + intrinsicWidth, (float)Height / 2 - intrinsicHeight / 2 + yDist + intrinsicHeight);
+                str = "ondraw2";
 
-            context.c.CW("ondraw3");
-			//context.c.CW("Where to x " + ((float)Width / 2 - intrinsicWidth / 2 + xDist) + " y " + ((float)Height / 2 - intrinsicHeight / 2 + yDist) + " right " + ((float)Width / 2 - intrinsicWidth / 2 + xDist + intrinsicWidth) + " bottom " + ((float)Height / 2 - intrinsicHeight / 2 + yDist + intrinsicHeight) + " BorderY " + (context.ImageEditorFrameBorder.GetY() - context.ImageEditor.GetY()) + " BorderH " + context.ImageEditorFrameBorder.Height + " scaleFactor " + scaleFactor);
+				Rect frameToDraw = new Rect(0, 0, bm.Width, bm.Height);
+				RectF whereToDraw = new RectF((float)Width / 2 - intrinsicWidth / 2 + xDist, (float)Height / 2 - intrinsicHeight / 2 + yDist, (float)Width / 2 - intrinsicWidth / 2 + xDist + intrinsicWidth, (float)Height / 2 - intrinsicHeight / 2 + yDist + intrinsicHeight);
 
-            Paint paint = new Paint
+                str = "ondraw3";
+				//context.c.CW("Where to x " + ((float)Width / 2 - intrinsicWidth / 2 + xDist) + " y " + ((float)Height / 2 - intrinsicHeight / 2 + yDist) + " right " + ((float)Width / 2 - intrinsicWidth / 2 + xDist + intrinsicWidth) + " bottom " + ((float)Height / 2 - intrinsicHeight / 2 + yDist + intrinsicHeight) + " BorderY " + (context.ImageEditorFrameBorder.GetY() - context.ImageEditor.GetY()) + " BorderH " + context.ImageEditorFrameBorder.Height + " scaleFactor " + scaleFactor);
+
+				Paint paint = new Paint
 				{
 					AntiAlias = true
 				};
-            context.c.CW("ondraw4");
-            canvas.DrawBitmap(bm, frameToDraw, whereToDraw, paint);
-            context.c.CW("ondraw5");
-            canvas.Restore();
 
-				//context.c.CW("OnDraw scaleFactor " + scaleFactor + " Width " + Width + " Height " + Height + " bmWidth " + bm.Width + " bmHeight " + bm.Height + " intrinsicWidth " + intrinsicWidth + " intrinsicHeight " + intrinsicHeight);
-			}
+				canvas.DrawBitmap(bm, frameToDraw, whereToDraw, paint);
+
+                str = "ondraw4";
+
+                canvas.Restore();
+
+                str = "ondraw5";
+                //context.c.CW("OnDraw scaleFactor " + scaleFactor + " Width " + Width + " Height " + Height + " bmWidth " + bm.Width + " bmHeight " + bm.Height + " intrinsicWidth " + intrinsicWidth + " intrinsicHeight " + intrinsicHeight);
+            }
 			catch (Exception ex)
 			{
-				//Java.Lang.RuntimeException: Canvas: trying to draw too large(127844352bytes) bitmap.
-				if (ex is Java.Lang.RuntimeException)
-				{
-					context.c.Log("OnDraw bitmap too large");
-					if (bm is null) //bm may be null now, but it was okay up until canvas.DrawBitmap();
-					{
-						context.c.Log("Bitmap is null, ProfilePage.bm: " + ProfilePage.bm);
-						bm = await ProfilePage.GetBitmap(context);
-						if (bm is null) //should not happen, because the file was loaded successfully before
-						{
-							context.rc.CloseEditor(); //error is displayed in the function
-							return;
-						}
-					}
+                context.c.CW("Exception: --- " + ex + " " + ex.Message + " " + ex.StackTrace);
 
+                // When I press the button to select an image while the previous is uploading, I get a snack informing me about this. But then, when I select a non-square image and close the editor, bm is null. All subsequent attempts will throw this error, even if I reset the form.
+                // Insight: OnDraw may be called after CloseEditor which resets the variables.
+                // bm is null, but ProfilePage.bm is not.
+                if (ex is System.NullReferenceException)
+				{
+                    return;                    
+                }
+                //Java.Lang.RuntimeException: Canvas: trying to draw too large(127844352bytes) bitmap.
+                else if (ex is Java.Lang.RuntimeException)
+				{
 					//will be halved at each error until the image is of manageable size. Hope that there are no other RuntimeException types here, but just in that case, we will exit if width falls below 1000; 
 
 					ProfilePage.bmWidth /= 2;
@@ -289,7 +295,7 @@ namespace LocationConnection
 				else
 				{
 					context.rc.CloseEditor();
-					await context.c.ErrorAlert(context.res.GetString(Resource.String.OtherBitmapError).Replace("[error]", ex.Message));
+					await context.c.ErrorAlert(context.res.GetString(Resource.String.OtherBitmapError).Replace("[error]", ex.Message) + " - " + canvas + " - " + bm + " - " + scaleFactor + " - " + str + " - " + ex);
 					context.c.ReportErrorSilent("OnDraw error " + ex.Message + " " + ex.StackTrace);
 				}
 			}
