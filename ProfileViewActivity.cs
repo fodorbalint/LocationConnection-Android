@@ -112,8 +112,9 @@ namespace LocationConnection
 		public int currentID;
 
 		LocationReceiver locationReceiver;
+        private bool isReceiverRegistered = false;
 
-		public int footerHeight, mapHeight;
+        public int footerHeight, mapHeight;
 
 		protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -254,8 +255,24 @@ namespace LocationConnection
 
 						if ((bool)Session.UseLocation && c.IsLocationEnabled())
 						{
-							RegisterReceiver(locationReceiver, new IntentFilter("balintfodor.locationconnection.LocationReceiver"));
+                            var intentFilter = new IntentFilter("balintfodor.locationconnection.LocationReceiver");
+
+                            if (!isReceiverRegistered)
+                            {
+                                if (IsAtLeastTiramisu)
+                                {
+                                    // Android 13+ (API 33 and newer) require explicit flags
+                                    RegisterReceiver(locationReceiver, intentFilter, ReceiverFlags.NotExported);
+                                }
+                                else
+                                {
+                                    // Older Android versions ignore the flags parameter (this overload doesn't exist)
+                                    RegisterReceiver(locationReceiver, intentFilter);
+                                }
+                                isReceiverRegistered = true;
+                            }
 						}
+
 						ShowEditSpacer();
 
 						EditSelfHeader.Visibility = ViewStates.Visible;
@@ -365,8 +382,12 @@ namespace LocationConnection
 
 			if (pageType == Constants.ProfileViewType_Self && (bool)Session.UseLocation && c.IsLocationEnabled())
 			{
-				UnregisterReceiver(locationReceiver);
-			}
+                if (isReceiverRegistered)
+                {
+                    UnregisterReceiver(locationReceiver);
+                    isReceiverRegistered = false;
+                }
+            }
 			if (!(thisMap is null) && thisMap.MapType != Settings.ProfileViewMapType)
 			{
 				Settings.ProfileViewMapType = (byte)thisMap.MapType;
@@ -2331,7 +2352,11 @@ namespace LocationConnection
 				c.SnackAction(message, Resource.String.ShowReceived, new Action<View>(delegate (View obj) {
 					if (pageType == Constants.ProfileViewType_Self && (bool)Session.UseLocation && c.IsLocationEnabled())
 					{
-						UnregisterReceiver(locationReceiver);
+                        if (isReceiverRegistered)
+                        {
+                            UnregisterReceiver(locationReceiver);
+                            isReceiverRegistered = false;
+                        }
 					}
 					mapSet = false;
 					ProfileImageScroll.ScrollX = 0;

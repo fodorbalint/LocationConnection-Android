@@ -44,7 +44,10 @@ namespace LocationConnection
 
 		public ViewGroup MainLayout; // Can be ConstraintLayout or ScrollView in settings
 		private ChatReceiver chatReceiver;
-		public CommonMethods c;
+        private bool isReceiverRegistered = false;
+        public static bool IsAtLeastTiramisu => Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu;
+        
+        public CommonMethods c;
 		public Android.Content.Res.Resources res;
 		//public Snackbar snack;
 
@@ -66,9 +69,9 @@ namespace LocationConnection
 
 		public static bool firstRun = false;
 
-		public static BaseActivity visibleContext; //needed for location callback. In SettingsActivity location updates may restart, but LoadListStartup is not called when returning to ListActivity, resulting in the "Getting location..." message to hang.
+		public static BaseActivity visibleContext; //needed for location callback. In SettingsActivity location updates may restart, but LoadListStartup is not called when returning to ListActivity, resulting in the "Getting location..." message to hang.        
 
-		protected override void OnCreate(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle savedInstanceState)
 		{
 			base.OnCreate(savedInstanceState);
 
@@ -93,7 +96,23 @@ namespace LocationConnection
 		{
 			base.OnResume();
 			visibleContext = this;
-			RegisterReceiver(chatReceiver, new IntentFilter("balintfodor.locationconnection.ChatReceiver"));
+
+            var intentFilter = new IntentFilter("balintfodor.locationconnection.ChatReceiver");
+
+			if (!isReceiverRegistered)
+			{
+				if (IsAtLeastTiramisu)
+				{
+					// Android 13+ (API 33 and newer) require explicit flags
+					RegisterReceiver(chatReceiver, intentFilter, ReceiverFlags.NotExported);
+				}
+				else
+				{
+					// Older Android versions ignore the flags parameter (this overload doesn't exist)
+					RegisterReceiver(chatReceiver, intentFilter);
+				}
+				isReceiverRegistered = true;
+			}
 			
 			isAppVisible = true;
 			if (!(this is ListActivity)) //we need to exclude ListActivity, because we need to show the GettingLocation label
@@ -147,7 +166,12 @@ namespace LocationConnection
 		{
 			base.OnPause();
 			visibleContext = null;
-			UnregisterReceiver(chatReceiver);
+
+			if (isReceiverRegistered)
+			{
+                UnregisterReceiver(chatReceiver);
+                isReceiverRegistered = false;             
+            }			
 
 			isAppVisible = false;
 

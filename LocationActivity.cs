@@ -34,7 +34,8 @@ namespace LocationConnection
 		int selectedPos;
 		LocationListAdapter adapter;
 		LocationReceiver locationReceiver;
-		int circleSize = 30;
+        private bool isReceiverRegistered = false;
+        int circleSize = 30;
 
 		bool rippleRunning;
         System.Timers.Timer rippleTimer;
@@ -89,7 +90,22 @@ namespace LocationConnection
 				c.Log("LocationActivity resuming, ListActivity.initialized " + ListActivity.initialized);
 				if (!ListActivity.initialized) { return; }
 
-				RegisterReceiver(locationReceiver, new IntentFilter("balintfodor.locationconnection.LocationReceiver"));
+                var intentFilter = new IntentFilter("balintfodor.locationconnection.LocationReceiver");
+
+                if (!isReceiverRegistered)
+                {
+                    if (IsAtLeastTiramisu)
+                    {
+                        // Android 13+ (API 33 and newer) require explicit flags
+                        RegisterReceiver(locationReceiver, intentFilter, ReceiverFlags.NotExported);
+                    }
+                    else
+                    {
+                        // Older Android versions ignore the flags parameter (this overload doesn't exist)
+                        RegisterReceiver(locationReceiver, intentFilter);
+                    }
+                    isReceiverRegistered = true;
+                }
 
 				locationList = new List<LocationItem>();
 
@@ -141,9 +157,13 @@ namespace LocationConnection
 			base.OnPause();
 			if (!ListActivity.initialized) { return; }
 
-			UnregisterReceiver(locationReceiver);
+            if (isReceiverRegistered)
+            {
+                UnregisterReceiver(locationReceiver);
+                isReceiverRegistered = false;
+            }
 
-			if (!(thisMap is null) && thisMap.MapType != Settings.LocationMapType)
+            if (!(thisMap is null) && thisMap.MapType != Settings.LocationMapType)
 			{
 				Settings.LocationMapType = (byte)thisMap.MapType;
 				c.SaveSettings();
